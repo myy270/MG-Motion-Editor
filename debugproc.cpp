@@ -78,7 +78,7 @@ void DrawDebugProc(void)
 	if (g_bDispDebug)
 	{
 		// î•ñ•\¦
-		g_pD3DXFont->DrawText(NULL, g_aStrDebug, -1, &rect, DT_LEFT, D3DCOLOR_ARGB(0xff, 0xff, 0, 0));
+		g_pD3DXFont->DrawText(NULL, g_aStrDebug, -1, &rect, DT_LEFT, D3DCOLOR_ARGB(0xff, 200, 0, 200));
 	}
 
 	// î•ñƒNƒŠƒA

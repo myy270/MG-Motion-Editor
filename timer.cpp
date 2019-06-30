@@ -115,9 +115,9 @@ void UpdateTimer(void)
 
 		if((g_nTimer < 0) && (g_timeOut == 0))
 		{
-			g_timeOut = 1;
+			//g_timeOut = 1;
 
-			SetFade(FADE_OUT);
+			//SetFade(FADE_OUT);
 
 		}
 

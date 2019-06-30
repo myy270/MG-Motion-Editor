@@ -295,7 +295,7 @@ void DrawGame(void)
 	//DrawLife();
 
 	// タイマー処理の描画
-	DrawTimer();
+	//DrawTimer();
 
 	// スコア処理の描画
 	//DrawScore();

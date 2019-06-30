@@ -36,9 +36,6 @@ HRESULT InitLight(void)
 	// 拡散光
 	g_aLight[0].Diffuse = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
 
-	// 環境光
-	g_aLight[0].Ambient = D3DXCOLOR(0.2f, 0.2f, 0.2f, 1.0f);
-
 	// ライトの方向の設定
 	vecDir = D3DXVECTOR3(0.20f, -0.60f, 0.80f);//右下後
 	D3DXVec3Normalize((D3DXVECTOR3*)&g_aLight[0].Direction, &vecDir);//ベクトルを正規化
@@ -57,13 +54,11 @@ HRESULT InitLight(void)
 	g_aLight[1].Type = D3DLIGHT_DIRECTIONAL;
 
 	// 拡散光
-	g_aLight[1].Diffuse = D3DXCOLOR(0.75f, 0.75f, 0.75f, 1.0f);
+	g_aLight[1].Diffuse = D3DXCOLOR(0.90f, 0.90f, 0.90f, 1.0f);
 
-	// 環境光
-	g_aLight[1].Ambient = D3DXCOLOR(0.2f, 0.2f, 0.2f, 1.0f);
 
     // ライトの方向の設定
-	vecDir = D3DXVECTOR3(-0.20f, 1.00f, -0.50f);//左上前
+	vecDir = D3DXVECTOR3(-0.50f, 0.50f, -0.50f);//左上前
 	D3DXVec3Normalize((D3DXVECTOR3*)&g_aLight[1].Direction, &vecDir);
 
 	// ライトをレンダリングパイプラインに設定
@@ -81,9 +76,6 @@ HRESULT InitLight(void)
 	// 拡散光
 	g_aLight[2].Diffuse = D3DXCOLOR(0.25f, 0.25f, 0.25f, 1.0f);
 
-	// 環境光
-	g_aLight[2].Ambient = D3DXCOLOR(0.3f, 0.3f, 0.3f, 1.0f);
-
     // ライトの方向の設定
 	vecDir = D3DXVECTOR3(0.80f, 0.10f, 0.50f);//右上後
 	D3DXVec3Normalize((D3DXVECTOR3*)&g_aLight[2].Direction, &vecDir);
@@ -97,9 +89,6 @@ HRESULT InitLight(void)
 
 	// ライティングモード
 	pDevice->SetRenderState(D3DRS_LIGHTING, TRUE);
-
-	//pDevice->SetRenderState(D3DRS_AMBIENT, TRUE);//default: ture
-	//pDevice->SetRenderState(D3DRS_AMBIENTMATERIALSOURCE, D3DMCS_COLOR1);//default: D3DMCS_MATERIAL
 
 	return S_OK;
 }

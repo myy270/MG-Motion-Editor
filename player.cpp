@@ -29,8 +29,12 @@
 #define	VALUE_MOVE_PLAYER	(0.195f)					// 移動速度
 #define	RATE_MOVE_PLAYER	(0.025f)					// 移動慣性係数
 
-#define	VALUE_ROTATE_PLAYER	(D3DX_PI * 0.025f)			// 回転速度 4.5度
+#define	UNIT_S_PLAYER	(0.1f)						// 拡大単位
+#define	UNIT_R_PLAYER	(D3DXToRadian(1))			// 回転単位　1度
+#define UNIT_T_PLAYER	(1.0f)						// 移動単位
+
 #define	RATE_ROTATE_PLAYER	(0.10f)						// 回転慣性係数
+
 
 
 extern HWND hWnd;
@@ -49,9 +53,14 @@ LPDIRECT3DTEXTURE9	g_pD3DTexturePlayer;		// テクスチャ読み込み場所
 LPDIRECT3DTEXTURE9	g_pD3DTextureSword;		// テクスチャ読み込み場所
 PLAYER				g_player;					// プレイヤーワーク
 
-int g_mode = MODE_INGAME;//編輯モードかどうか
+int g_mode = MODE_EDIT;//編輯モードかどうか
+
+int SRTMode = 0;
+int XYZMode = 0;
 
 int g_conId = 0;	//デフォルトのコントロールID
+
+bool manual = 1;
 
 float g_motionTime = 0.0f;	// アニメーション全体時間　歩く
 float g_motionTime2 = 0.0f;	// アニメーション全体時間　剣
@@ -70,7 +79,11 @@ D3DXMATRIX mtxBuff3;
 
 D3DXVECTOR3 vctBuff3;
 float rotY;	//ジャンプ斬りを発動時の方向を記録する
+
 D3DXMATRIX rotYMtx;
+
+bool partsShine;
+
 //走るキー情報
 KEY g_animeWalk[] =
 {
@@ -923,50 +936,93 @@ void UninitPlayer(void)
 //=============================================================================
 void UpdatePlayer(void)
 {
+	partsShine = 0;
+
 #ifdef _DEBUG
 	//モードの入力
-	if (GetKeyboardPress(DIK_1))
+	if (GetKeyboardPress(DIK_F5))
 	{
 		g_mode = MODE_PLAY;
 	}
-	if (GetKeyboardPress(DIK_2))
+	if (GetKeyboardPress(DIK_F6))
 	{
 		g_mode = MODE_EDIT;
 	}
-	if (GetKeyboardPress(DIK_3))
+	if (GetKeyboardPress(DIK_F7))
 	{
 		g_mode = MODE_INGAME;
 	}
-
 
 	//コントロールIDの入力
 	if (GetKeyboardPress(DIK_NUMPAD0))
 	{
 		g_conId = 0;
+		partsShine = 1;
 	}
 	else if (GetKeyboardPress(DIK_NUMPAD1))
 	{
 		g_conId = 1;
+		partsShine = 1;
 	}
 	else if (GetKeyboardPress(DIK_NUMPAD2))
 	{
 		g_conId = 2;
+		partsShine = 1;
 	}
 	else if (GetKeyboardPress(DIK_NUMPAD3))
 	{
 		g_conId = 3;
+		partsShine = 1;
 	}
 	else if (GetKeyboardPress(DIK_NUMPAD4))
 	{
 		g_conId = 4;
+		partsShine = 1;
 	}
 	else if (GetKeyboardPress(DIK_NUMPAD5))
 	{
 		g_conId = 5;
+		partsShine = 1;
 	}
 	else if (GetKeyboardPress(DIK_NUMPAD6))
 	{
 		g_conId = 6;
+		partsShine = 1;
+	}
+
+	if (g_mode == MODE_EDIT)
+	{
+		if (GetKeyboardPress(DIK_Q))
+		{
+			SRTMode = 0;//S
+		}
+		if (GetKeyboardPress(DIK_A))
+		{
+			SRTMode = 1;//R
+		}
+		if (GetKeyboardPress(DIK_Z))
+		{
+			SRTMode = 2;//T
+		}
+
+		if (GetKeyboardPress(DIK_S))
+		{
+			XYZMode = 0;//X
+		}
+		if (GetKeyboardPress(DIK_D))
+		{
+			XYZMode = 1;//Y
+		}
+		if (GetKeyboardPress(DIK_F))
+		{
+			XYZMode = 2;//Z
+		}
+
+	}
+
+	if (GetKeyboardTrigger(DIK_F9))
+	{
+		manual = !manual;
 	}
 
 
@@ -991,111 +1047,119 @@ void UpdatePlayer(void)
 #ifdef _DEBUG
 
 		//モデルパーツのコントローラー（モーション作成ツール）
-		//回転
+		switch (SRTMode)
 		{
-			//x軸回転
-			if (GetKeyboardPress(DIK_Z))
+		case 0://縮小拡大					
+			if (GetKeyboardRepeat(DIK_LEFT))
 			{
-				g_player.part[g_conId].srt.rot.x += VALUE_ROTATE_PLAYER;
-				//if (g_player.part[g_conId].srt.rot.x > D3DX_PI)
-				//{
-				//	g_player.part[g_conId].srt.rot.x -= D3DX_PI * 2.0f;
-				//}
+				g_player.part[g_conId].srt.scl.x -= UNIT_S_PLAYER;
+				g_player.part[g_conId].srt.scl.y -= UNIT_S_PLAYER;
+				g_player.part[g_conId].srt.scl.z -= UNIT_S_PLAYER;
 			}
-			else if (GetKeyboardPress(DIK_X))
+			else if (GetKeyboardRepeat(DIK_RIGHT))
 			{
-				g_player.part[g_conId].srt.rot.x -= VALUE_ROTATE_PLAYER;
-				//if (g_player.part[g_conId].srt.rot.x < -D3DX_PI)
-				//{
-				//	g_player.part[g_conId].srt.rot.x += D3DX_PI * 2.0f;
-				//}
+				g_player.part[g_conId].srt.scl.x += UNIT_S_PLAYER;
+				g_player.part[g_conId].srt.scl.y += UNIT_S_PLAYER;
+				g_player.part[g_conId].srt.scl.z += UNIT_S_PLAYER;
 			}
+			break;
 
-			//y軸回転
-			if (GetKeyboardPress(DIK_C))
+		case 1://回転
+			switch (XYZMode)
 			{
-				g_player.part[g_conId].srt.rot.y += VALUE_ROTATE_PLAYER;
-				if (g_player.part[g_conId].srt.rot.y > D3DX_PI)
+			case 0:
+				//x軸回転
+				if (GetKeyboardRepeat(DIK_LEFT))
 				{
-					g_player.part[g_conId].srt.rot.y -= D3DX_PI * 2.0f;
+					g_player.part[g_conId].srt.rot.x += UNIT_R_PLAYER;
+
 				}
-			}
-			else if (GetKeyboardPress(DIK_V))
-			{
-				g_player.part[g_conId].srt.rot.y -= VALUE_ROTATE_PLAYER;
-				if (g_player.part[g_conId].srt.rot.y < -D3DX_PI)
+				else if (GetKeyboardRepeat(DIK_RIGHT))
 				{
-					g_player.part[g_conId].srt.rot.y += D3DX_PI * 2.0f;
-				}
-			}
+					g_player.part[g_conId].srt.rot.x -= UNIT_R_PLAYER;
 
-			//z軸回転
-			if (GetKeyboardPress(DIK_B))
-			{
-				g_player.part[g_conId].srt.rot.z += VALUE_ROTATE_PLAYER;
-				if (g_player.part[g_conId].srt.rot.z > D3DX_PI)
+				}
+				break;
+			case 1:
+				//y軸回転
+				if (GetKeyboardRepeat(DIK_LEFT))
 				{
-					g_player.part[g_conId].srt.rot.z -= D3DX_PI * 2.0f;
+					g_player.part[g_conId].srt.rot.y += UNIT_R_PLAYER;
+					if (g_player.part[g_conId].srt.rot.y > D3DX_PI)
+					{
+						g_player.part[g_conId].srt.rot.y -= D3DX_PI * 2.0f;
+					}
 				}
-			}
-			else if (GetKeyboardPress(DIK_N))
-			{
-				g_player.part[g_conId].srt.rot.z -= VALUE_ROTATE_PLAYER;
-				if (g_player.part[g_conId].srt.rot.z < -D3DX_PI)
+				else if (GetKeyboardRepeat(DIK_RIGHT))
 				{
-					g_player.part[g_conId].srt.rot.z += D3DX_PI * 2.0f;
+					g_player.part[g_conId].srt.rot.y -= UNIT_R_PLAYER;
+					if (g_player.part[g_conId].srt.rot.y < -D3DX_PI)
+					{
+						g_player.part[g_conId].srt.rot.y += D3DX_PI * 2.0f;
+					}
 				}
+				break;
+			case 2:
+				//z軸回転
+				if (GetKeyboardRepeat(DIK_LEFT))
+				{
+					g_player.part[g_conId].srt.rot.z += UNIT_R_PLAYER;
+					if (g_player.part[g_conId].srt.rot.z > D3DX_PI)
+					{
+						g_player.part[g_conId].srt.rot.z -= D3DX_PI * 2.0f;
+					}
+				}
+				else if (GetKeyboardRepeat(DIK_RIGHT))
+				{
+					g_player.part[g_conId].srt.rot.z -= UNIT_R_PLAYER;
+					if (g_player.part[g_conId].srt.rot.z < -D3DX_PI)
+					{
+						g_player.part[g_conId].srt.rot.z += D3DX_PI * 2.0f;
+					}
+				}
+				break;
 			}
+			break;
 
-		}
+		case 2://移動
+			switch (XYZMode)
+			{
+			case 0:
+				//x軸移動
+				if (GetKeyboardRepeat(DIK_LEFT))
+				{
+					g_player.part[g_conId].srt.pos.x -= UNIT_T_PLAYER;
+				}
+				else if (GetKeyboardRepeat(DIK_RIGHT))
+				{
+					g_player.part[g_conId].srt.pos.x += UNIT_T_PLAYER;
+				}
+				break;
+			case 1:
+				//y軸移動
+				if (GetKeyboardRepeat(DIK_LEFT))
+				{
+					g_player.part[g_conId].srt.pos.y -= UNIT_T_PLAYER;
+				}
+				else if (GetKeyboardRepeat(DIK_RIGHT))
+				{
+					g_player.part[g_conId].srt.pos.y += UNIT_T_PLAYER;
+				}
+				break;
+			case 2:
+				//z軸移動
+				if (GetKeyboardRepeat(DIK_LEFT))
+				{
+					g_player.part[g_conId].srt.pos.z -= UNIT_T_PLAYER;
+				}
+				else if (GetKeyboardRepeat(DIK_RIGHT))
+				{
+					g_player.part[g_conId].srt.pos.z += UNIT_T_PLAYER;
+				}
+				break;
+			}
+			break;
 
-		//移動
-		{
-			//x軸移動
-			if (GetKeyboardPress(DIK_A))
-			{
-				g_player.part[g_conId].srt.pos.x -= VALUE_MOVE_PLAYER;
-			}
-			else if (GetKeyboardPress(DIK_D))
-			{
-				g_player.part[g_conId].srt.pos.x += VALUE_MOVE_PLAYER;
-			}
-
-			//y軸移動
-			if (GetKeyboardPress(DIK_F))
-			{
-				g_player.part[g_conId].srt.pos.y -= VALUE_MOVE_PLAYER;
-			}
-			else if (GetKeyboardPress(DIK_G))
-			{
-				g_player.part[g_conId].srt.pos.y += VALUE_MOVE_PLAYER;
-			}
-
-			//z軸移動
-			if (GetKeyboardPress(DIK_S))
-			{
-				g_player.part[g_conId].srt.pos.z -= VALUE_MOVE_PLAYER;
-			}
-			else if (GetKeyboardPress(DIK_W))
-			{
-				g_player.part[g_conId].srt.pos.z += VALUE_MOVE_PLAYER;
-			}
-		}
-
-		//縮小拡大
-		{
-			if (GetKeyboardPress(DIK_J))
-			{
-				g_player.part[g_conId].srt.scl.x -= 0.1f;
-				g_player.part[g_conId].srt.scl.y -= 0.1f;
-				g_player.part[g_conId].srt.scl.z -= 0.1f;
-			}
-			else if (GetKeyboardPress(DIK_K))
-			{
-				g_player.part[g_conId].srt.scl.x += 0.1f;
-				g_player.part[g_conId].srt.scl.y += 0.1f;
-				g_player.part[g_conId].srt.scl.z += 0.1f;
-			}
 		}
 
 
@@ -1273,24 +1337,255 @@ void UpdatePlayer(void)
 	}
 #endif
 
-	PrintDebugProc("編輯モード：%d \n\n", g_mode);
+	PrintDebugProc("モード：[");
+	switch (g_mode)
+	{
+	case 0:
+		PrintDebugProc("プレイ");
+		break;
+	case 1:
+		PrintDebugProc("エディター");
+		break;
+	case 2:
+		PrintDebugProc("インゲーム");
+		break;
 
-	PrintDebugProc("コントロールのパーツ番号：%d \n\n", g_conId);
+	}
+	PrintDebugProc("]\n\n");
 
-	PrintDebugProc("[S：(%f : %f : %f)]\n", g_player.part[g_conId].srt.scl.x, 
-											g_player.part[g_conId].srt.scl.y, 
-											g_player.part[g_conId].srt.scl.z);
+	if (g_mode == 1)
+	{
+		PrintDebugProc("パーツ操作方法[F9]：\n");
+		if (manual)
+		{		
+			PrintDebugProc("テンキーの[0]～[6]:パーツ切換\n");		
+			PrintDebugProc("[Q][A][Z]:SRT切換 \n");
+			PrintDebugProc("[S][D][F]:XYZ切換 \n");
+			PrintDebugProc("[<-][->](Repeat):値を加減する \n");
+		}
+		PrintDebugProc("\n");
 
-	PrintDebugProc("[R：(%f : %f : %f)]\n", g_player.part[g_conId].srt.rot.x, 
-											g_player.part[g_conId].srt.rot.y, 
-											g_player.part[g_conId].srt.rot.z);
+		PrintDebugProc(">>>現在の操作：[");
+		switch (g_conId)
+		{
+		case 0:
+			PrintDebugProc("体");
+			break;
+		case 1:
+			PrintDebugProc("頭");
+			break;
+		case 2:
+			PrintDebugProc("左手");
+			break;
+		case 3:
+			PrintDebugProc("右手");
+			break;
+		case 4:
+			PrintDebugProc("左足");
+			break;
+		case 5:
+			PrintDebugProc("右足");
+			break;
+		case 6:
+			PrintDebugProc("剣");
+			break;
+		}
+		PrintDebugProc("]");
 
-	PrintDebugProc("[T：(%f : %f : %f)]\n\n", g_player.part[g_conId].srt.pos.x, 
-											g_player.part[g_conId].srt.pos.y, 
-											g_player.part[g_conId].srt.pos.z);
 
-	PrintDebugProc("目的向き：%f \n\n", g_player.rotDest.y);
-	PrintDebugProc("プレイヤーの運動量：%f,%f,%f \n\n", g_player.move.x, g_player.move.y, g_player.move.z);
+		PrintDebugProc("[");
+		switch (SRTMode)
+		{
+		case 0:
+			PrintDebugProc("拡大");
+			break;
+		case 1:
+			PrintDebugProc("回転");
+			break;
+		case 2:
+			PrintDebugProc("移動");
+			break;
+
+		}
+		PrintDebugProc("]");
+
+		if (SRTMode != 0)
+		{
+			PrintDebugProc("[");
+			switch (XYZMode)
+			{
+			case 0:
+				PrintDebugProc("X軸");
+				break;
+			case 1:
+				PrintDebugProc("Y軸");
+				break;
+			case 2:
+				PrintDebugProc("Z軸");
+				break;
+
+			}
+			PrintDebugProc("]");
+		}
+		else
+		{
+			PrintDebugProc("[3軸]");
+		}
+
+
+		PrintDebugProc("\n\n");
+
+	}
+
+	PrintDebugProc("[");
+	switch (g_conId)
+	{
+	case 0:
+		PrintDebugProc("体");
+		break;
+	case 1:
+		PrintDebugProc("頭");
+		break;
+	case 2:
+		PrintDebugProc("左手");
+		break;
+	case 3:
+		PrintDebugProc("右手");
+		break;
+	case 4:
+		PrintDebugProc("左足");
+		break;
+	case 5:
+		PrintDebugProc("右足");
+		break;
+	case 6:
+		PrintDebugProc("剣");
+		break;
+	}
+
+	PrintDebugProc("]のSRT値:\n");
+
+
+	if (SRTMode == 0)
+	{
+		PrintDebugProc(">>>>>>>");
+
+		PrintDebugProc("[S：(★%f : %f : %f★)]", g_player.part[g_conId].srt.scl.x,
+			g_player.part[g_conId].srt.scl.y,
+			g_player.part[g_conId].srt.scl.z);
+
+
+	}
+	else
+	{
+		PrintDebugProc("[S：(%f : %f : %f)]", g_player.part[g_conId].srt.scl.x,
+			g_player.part[g_conId].srt.scl.y,
+			g_player.part[g_conId].srt.scl.z);
+
+	}
+
+	if (SRTMode == 0)
+	{
+		PrintDebugProc("<<<");
+	}
+	PrintDebugProc("\n");
+
+
+
+	if (SRTMode == 1)
+	{
+		PrintDebugProc(">>>>>>>");
+
+		switch (XYZMode)
+		{
+		case 0:
+			PrintDebugProc("[R：(★%f★ : %f : %f)]", g_player.part[g_conId].srt.rot.x,
+				g_player.part[g_conId].srt.rot.y,
+				g_player.part[g_conId].srt.rot.z);
+
+
+			break;
+		case 1:
+			PrintDebugProc("[R：(%f : ★%f★ : %f)]", g_player.part[g_conId].srt.rot.x,
+				g_player.part[g_conId].srt.rot.y,
+				g_player.part[g_conId].srt.rot.z);
+
+
+			break;
+		case 2:
+			PrintDebugProc("[R：(%f : %f : ★%f★)]", g_player.part[g_conId].srt.rot.x,
+				g_player.part[g_conId].srt.rot.y,
+				g_player.part[g_conId].srt.rot.z);
+
+
+			break;
+
+		}
+	}
+	else
+	{
+		PrintDebugProc("[R：(%f : %f : %f)]", g_player.part[g_conId].srt.rot.x,
+			g_player.part[g_conId].srt.rot.y,
+			g_player.part[g_conId].srt.rot.z);
+	}
+
+	if (SRTMode == 1)
+	{
+		PrintDebugProc("<<<");
+	}
+	PrintDebugProc("\n");
+
+
+
+
+	if (SRTMode == 2)
+	{
+		PrintDebugProc(">>>>>>>");
+
+		switch (XYZMode)
+		{
+		case 0:
+			PrintDebugProc("[T：(★%f★ : %f : %f)]", g_player.part[g_conId].srt.pos.x,
+				g_player.part[g_conId].srt.pos.y,
+				g_player.part[g_conId].srt.pos.z);
+
+
+			break;
+		case 1:
+			PrintDebugProc("[T：(%f : ★%f★ : %f)]", g_player.part[g_conId].srt.pos.x,
+				g_player.part[g_conId].srt.pos.y,
+				g_player.part[g_conId].srt.pos.z);
+
+
+			break;
+		case 2:
+			PrintDebugProc("[T：(%f : %f : ★%f★)]", g_player.part[g_conId].srt.pos.x,
+				g_player.part[g_conId].srt.pos.y,
+				g_player.part[g_conId].srt.pos.z);
+
+
+			break;
+
+		}
+
+	}
+	else
+	{
+		PrintDebugProc("[T：(%f : %f : %f)]", g_player.part[g_conId].srt.pos.x,
+			g_player.part[g_conId].srt.pos.y,
+			g_player.part[g_conId].srt.pos.z);
+
+	}
+
+	if (SRTMode == 2)
+	{
+		PrintDebugProc("<<<");
+	}
+	PrintDebugProc("\n\n");
+
+
+	PrintDebugProc("目的向き：%f \n", g_player.rotDest.y);
+	PrintDebugProc("プレイヤーの運動量：%f,%f,%f \n", g_player.move.x, g_player.move.y, g_player.move.z);
 
 }
 
@@ -1399,7 +1694,19 @@ void DrawPlayer(void)
 			if (i == SWORD_R)
 			{
 				pDevice->SetTexture(0, g_pD3DTextureSword);
+
 			}
+
+			//選択されたパーツが光る
+			if (i == g_conId)
+			{
+				if (partsShine == 1)
+				{
+					pDevice->SetTexture(0, NULL);
+				}
+				
+			}
+
 
 			for (int nCntMat = 0; nCntMat < (int)g_player.part[i].nNumMat; nCntMat++)
 			{
@@ -1739,7 +2046,8 @@ void AnimeKen(KEY g_anime[])
 			g_animeStateKen = 1;//動く状態にする	
 			
 			D3DXMatrixIdentity(&mtxBuff);
-			D3DXMatrixMultiply(&mtxBuff, &mtxBuff, &g_player.part[SWORD_R].parent->mtxT);
+			D3DXMatrixMultiply(&mtxBuff, &mtxBuff, &g_player.part[SWORD_R].parent->mtxS);
+			D3DXMatrixMultiply(&mtxBuff, &mtxBuff, &g_player.part[SWORD_R].parent->mtxT);			
 			D3DXMatrixMultiply(&mtxBuff, &mtxBuff, &g_player.part[SWORD_R].parent->parent->mtxWorld);//剣を投げる時の、親の行列情報を保存
 		}
 

@@ -17,7 +17,7 @@
 // マクロ定義
 //*****************************************************************************
 #define CLASS_NAME		"AppClass"			// ウインドウのクラス名
-#define WINDOW_NAME		"MG_Battle"		// ウインドウのキャプション名
+#define WINDOW_NAME		"MotionEditor"		// ウインドウのキャプション名
 
 
 //*****************************************************************************
@@ -142,7 +142,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLi
 			if((dwCurrentTime - dwExecLastTime) >= (1000 / F_P_S))
 			{
 #ifdef _DEBUG
-				PrintDebugProc("FPS:%d\n", g_nCountFPS);
+				PrintDebugProc("FPS:%d\n\n", g_nCountFPS);
 #endif
 
 				dwExecLastTime = dwCurrentTime;

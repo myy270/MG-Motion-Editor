@@ -23,10 +23,10 @@
 #define	RATE_CHASE_CAMERA_P	(0.35f)					// カメラの視点への補正係数
 #define	RATE_CHASE_CAMERA_R	(0.20f)					// カメラの注視点への補正係数
 
-#define	CHASE_HEIGHT_P_NEAR		(136.0f)				// 追跡時の視点の高さ
+#define	CHASE_HEIGHT_P_NEAR		(36.0f)				// 追跡時の視点の高さ
 #define	CHASE_HEIGHT_P_FAR		(1700.0f)				// 追跡時の視点の高さ
 
-#define	RADIUS_NEAR		(356.0f)				// 視点と注視点のxoz面の距離
+#define	RADIUS_NEAR		(200.0f)				// 視点と注視点のxoz面の距離
 #define	RADIUS_FAR		(350.0f)				// 視点と注視点のxoz面の距離
 
 
@@ -57,6 +57,7 @@ PLAY_MODE g_playMode;
 
 bool g_cutScene;//カットシーンかどうか
 
+extern bool manual;
 //=============================================================================
 // カメラの初期化
 //=============================================================================
@@ -123,7 +124,7 @@ void UpdateCamera(void)
 		if ((GetKeyboardTrigger(DIK_LSHIFT) || IsButtonTrigger(0, BUTTON_CROSS)) && (g_playMode == PLAY_MODE_SINGLE))
 		{//シングルモードだけ、カメラの切替可能にする
 
-			g_cameraMode = (CAMERA_MODE)!g_cameraMode;
+			//g_cameraMode = (CAMERA_MODE)!g_cameraMode;
 
 		}
 
@@ -149,7 +150,7 @@ void UpdateCamera(void)
 	}
 
 #ifdef _DEBUG
-	if (GetKeyboardPress(DIK_Q))
+	if (GetKeyboardPress(DIK_C))
 	{// Y軸左回転
 		g_rotCamera.y -= VALUE_ROTATE_CAMERA;
 		if (g_rotCamera.y > D3DX_PI)
@@ -162,7 +163,7 @@ void UpdateCamera(void)
 		}
 	}
 
-	if (GetKeyboardPress(DIK_E))
+	if (GetKeyboardPress(DIK_V))
 	{// Y軸右回転
 		g_rotCamera.y += VALUE_ROTATE_CAMERA;
 		if (g_rotCamera.y > D3DX_PI)
@@ -175,38 +176,28 @@ void UpdateCamera(void)
 		}
 	}
 
-	if (GetKeyboardPress(DIK_R))
+	if (GetKeyboardPress(DIK_T))
 	{//zoom
 		g_fLengthIntervalCamera -= VALUE_MOVE_CAMERA;
 	}
 
-	if (GetKeyboardPress(DIK_T))
+	if (GetKeyboardPress(DIK_G))
 	{//zoom
 		g_fLengthIntervalCamera += VALUE_MOVE_CAMERA;
 	}
 
 
-	if (GetKeyboardPress(DIK_Y))
+	if (GetKeyboardPress(DIK_H))
 	{// 追跡時の視点の高さ
 		g_chaseHightP -= VALUE_MOVE_CAMERA;
 	}
 
-	if (GetKeyboardPress(DIK_U))
+	if (GetKeyboardPress(DIK_Y))
 	{// 追跡時の視点の高さ
 		g_chaseHightP += VALUE_MOVE_CAMERA;
 	}
 
 #endif
-
-	PrintDebugProc("\n");
-
-	PrintDebugProc("chaseHightP:%f\n", g_chaseHightP);
-
-	PrintDebugProc("\n");
-
-	PrintDebugProc("LengthIntervalCamera:%f\n", g_fLengthIntervalCamera);
-
-	PrintDebugProc("\n");
 
 }
 
@@ -259,11 +250,27 @@ void UpdateCamera2(void)
 
 	}
 
-	PrintDebugProc("[camera pos：(%f : %f : %f)]\n", g_posCameraP.x,
+	PrintDebugProc("=========================================\n");
+	
+	PrintDebugProc("カメラ操作方法[F9]:\n");
+	if (manual)
+	{		
+		PrintDebugProc("[C]:反時計回り;[V]:時計回り\n");
+		PrintDebugProc("[T]:近くする;[G]:遠くする\n");
+		PrintDebugProc("[H]:低くする;[Y]:高くする\n");
+		
+	}
+	PrintDebugProc("\n");
+	
+
+	PrintDebugProc("変数LengthIntervalCamera:%f\n", g_fLengthIntervalCamera);
+	PrintDebugProc("変数chaseHightP:%f\n", g_chaseHightP);
+
+	PrintDebugProc("[camera pos:(%f : %f : %f)]\n", g_posCameraP.x,
 		g_posCameraP.y,
 		g_posCameraP.z);
 
-	PrintDebugProc("[camera at：(%f : %f : %f)]\n", g_posCameraR.x,
+	PrintDebugProc("[camera at:(%f : %f : %f)]\n", g_posCameraR.x,
 		g_posCameraR.y,
 		g_posCameraR.z);
 

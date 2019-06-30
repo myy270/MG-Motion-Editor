@@ -154,7 +154,7 @@ void UpdateItem(void)
 {
 
 #ifdef _DEBUG
-	if (GetKeyboardPress(DIK_3))
+	if (GetKeyboardPress(DIK_9))
 	{
 		g_dropItem = true;
 	}
