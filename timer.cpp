@@ -103,10 +103,10 @@ void UpdateTimer(void)
 {
 
 #ifdef _DEBUG
-	if (GetKeyboardTrigger(DIK_SUBTRACT))
-	{
-		g_nTimer = 300;
-	}
+	//if (GetKeyboardTrigger(DIK_SUBTRACT))
+	//{
+	//	g_nTimer = 300;
+	//}
 #endif
 
 	if(g_bEnableTimer)

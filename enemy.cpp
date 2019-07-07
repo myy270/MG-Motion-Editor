@@ -285,7 +285,7 @@ HRESULT InitEnemy(void)
 									&g_enemy.part[i].nNumMat,
 									&g_enemy.part[i].pMesh)))
 		{
-			return E_FAIL;
+			return E_FAIL;	//敵のモデル消したから、ここに入る。だから、敵はいない
 		}
 
 		switch (i)
@@ -425,7 +425,7 @@ void UpdateEnemy(void)
 	{//AIモードの切替　即ち、シングルモードとダブルモードの切替
 		g_ai = !g_ai;
 		g_left = g_right = g_up = g_down = 0;
-		SetPlayMode((PLAY_MODE)!GetPlayMode());
+		//SetPlayMode((PLAY_MODE)!GetPlayMode());
 
 		if (GetPlayMode() == PLAY_MODE_DOUBLE)
 		{
